@@ -6,75 +6,114 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+:root {
+    --bg: #111;
+    --panel: #1e1e1e;
+    --btn: #2a2a2a;
+    --btn-pressed: #181818;
+    --text: #fff;
+    --accent: #4da3ff;
+}
+
+.light {
+    --bg: #eaeaea;
+    --panel: #ffffff;
+    --btn: #f0f0f0;
+    --btn-pressed: #d6d6d6;
+    --text: #111;
+    --accent: #0066ff;
+}
+
+* { box-sizing: border-box; }
+
 body {
     margin: 0;
-    background: #111;
-    color: white;
-    font-family: sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, sans-serif;
     touch-action: none;
 }
 
 .container {
-    display: grid;
-    grid-template-rows: 15% 25% 25% 35%;
     height: 100vh;
+    display: grid;
+    grid-template-rows: 12% 28% 30% 30%;
+}
+
+/* ---------- BUTTON ---------- */
+.btn {
+    background: var(--btn);
+    border: none;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.1),
+        inset 0 -4px 0 rgba(0,0,0,0.4);
+}
+
+.btn:active {
+    background: var(--btn-pressed);
+    transform: translateY(2px);
+    box-shadow: inset 0 4px 6px rgba(0,0,0,0.6);
+}
+
+svg {
+    width: 28px;
+    height: 28px;
+    fill: var(--text);
 }
 
 /* ---------- TOP ---------- */
 .top {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    padding: 12px;
 }
 
-.btn {
-    background: #222;
-    border: none;
-    color: white;
-    font-size: 24px;
-    padding: 15px;
-    border-radius: 12px;
+.mode {
+    justify-self: center;
+    font-size: 14px;
+    padding: 12px 20px;
 }
 
 /* ---------- MIDDLE ---------- */
 .middle {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1.3fr 1fr;
     align-items: center;
-    text-align: center;
+    gap: 16px;
+    padding: 20px;
 }
 
-.big {
-    font-size: 30px;
-    padding: 25px;
+.play {
+    border-radius: 50%;
+    padding: 32px;
 }
 
-/* ---------- BOTTOM BUTTONS ---------- */
-.bottom-buttons {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px;
+/* ---------- CONTROLS ---------- */
+.controls {
+    display: grid;
+    grid-template-columns: auto 180px auto;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 12px;
 }
 
 /* ---------- JOYSTICK ---------- */
-.joystick-zone {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
 .joystick {
     width: 180px;
     height: 180px;
-    background: #222;
+    background: var(--panel);
     border-radius: 50%;
     position: relative;
+    box-shadow: inset 0 6px 12px rgba(0,0,0,0.6);
 }
 
 .stick {
     width: 70px;
     height: 70px;
-    background: #555;
+    background: var(--btn);
     border-radius: 50%;
     position: absolute;
     top: 55px;
@@ -84,75 +123,113 @@ body {
 </head>
 
 <body>
-
 <div class="container">
 
-    <!-- TOP -->
+    <!-- TOP : VOLUME -->
     <div class="top">
-        <button class="btn" onclick="send('/volume/down')">🔉−</button>
-        <button class="btn" onclick="send('/volume/up')">🔊+</button>
+        <!-- Volume - -->
+        <button class="btn" onclick="send('/volume/down')">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 10v4h4l5 5V5L7 10H3z"/>
+            </svg>
+        </button>
+
+        <!-- MODE -->
+        <button class="btn mode" onclick="toggleMode()">MODE</button>
+
+        <!-- Volume + -->
+        <button class="btn" onclick="send('/volume/up')">
+            <svg viewBox="0 0 24 24">
+                <path d="M3 10v4h4l5 5V5L7 10H3z"/>
+                <path d="M16 11h5v2h-5z"/>
+                <path d="M18 9v6h-2V9z"/>
+            </svg>
+        </button>
     </div>
 
-    <!-- MIDDLE -->
+    <!-- MIDDLE : SEEK + PLAY -->
     <div class="middle">
-        <button class="btn big" onclick="send('/media/backward')">⏪</button>
-        <button class="btn big" onclick="send('/media/playpause')">⏯️</button>
-        <button class="btn big" onclick="send('/media/forward')">⏩</button>
+        <!-- Recul rapide -->
+        <button class="btn" onclick="send('/media/backward')">
+            <svg viewBox="0 0 24 24">
+                <path d="M11 18V6L2.5 12 11 18zM12 12l9-6v12l-9-6z"/>
+            </svg>
+        </button>
+
+        <!-- Play / Pause -->
+        <button class="btn play" onclick="send('/media/playpause')">
+            <svg viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+            </svg>
+        </button>
+
+        <!-- Avance rapide -->
+        <button class="btn" onclick="send('/media/forward')">
+            <svg viewBox="0 0 24 24">
+                <path d="M13 6v12l8.5-6L13 6zM3 6l8.5 6L3 18V6z"/>
+            </svg>
+        </button>
     </div>
 
-    <!-- BOTTOM BUTTONS -->
-    <div class="bottom-buttons">
-        <button class="btn" onclick="send('/media/prev')">⏮️</button>
-        <button class="btn" onclick="send('/media/next')">⏭️</button>
-    </div>
+    <!-- CONTROLS : PREV / JOYSTICK / NEXT -->
+    <div class="controls">
+        <!-- Previous -->
+        <button class="btn" onclick="send('/media/prev')">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 6h2v12H6zM9 12l9 6V6z"/>
+            </svg>
+        </button>
 
-    <!-- JOYSTICK -->
-    <div class="joystick-zone">
+        <!-- Joystick -->
         <div class="joystick" id="joystick">
             <div class="stick" id="stick"></div>
         </div>
+
+        <!-- Next -->
+        <button class="btn" onclick="send('/media/next')">
+            <svg viewBox="0 0 24 24">
+                <path d="M16 6h2v12h-2zM7 6v12l9-6z"/>
+            </svg>
+        </button>
     </div>
 
 </div>
 
 <script>
-const stick = document.getElementById("stick");
-const joystick = document.getElementById("joystick");
-
-let active = false;
-let centerX, centerY;
+let dark = true;
+function toggleMode() {
+    dark = !dark;
+    document.body.classList.toggle("light", !dark);
+}
 
 function send(url) {
     fetch(url);
 }
 
+// -------- JOYSTICK --------
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
+let active = false, cx, cy;
+
 joystick.addEventListener("touchstart", e => {
     active = true;
-    const rect = joystick.getBoundingClientRect();
-    centerX = rect.left + rect.width / 2;
-    centerY = rect.top + rect.height / 2;
+    const r = joystick.getBoundingClientRect();
+    cx = r.left + r.width / 2;
+    cy = r.top + r.height / 2;
 });
 
 joystick.addEventListener("touchmove", e => {
     if (!active) return;
-    const touch = e.touches[0];
-
-    let dx = touch.clientX - centerX;
-    let dy = touch.clientY - centerY;
-
-    const max = 50;
-    dx = Math.max(-max, Math.min(max, dx));
-    dy = Math.max(-max, Math.min(max, dy));
+    const t = e.touches[0];
+    let dx = Math.max(-50, Math.min(50, t.clientX - cx));
+    let dy = Math.max(-50, Math.min(50, t.clientY - cy));
 
     stick.style.transform = `translate(${dx}px, ${dy}px)`;
 
     fetch("/mouse/move", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            dx: dx / 3,
-            dy: dy / 3
-        })
+        body: JSON.stringify({ dx: dx / 3, dy: dy / 3 })
     });
 });
 
@@ -161,9 +238,7 @@ joystick.addEventListener("touchend", () => {
     stick.style.transform = "translate(0,0)";
 });
 
-joystick.addEventListener("click", () => {
-    fetch("/mouse/click");
-});
+joystick.addEventListener("click", () => fetch("/mouse/click"));
 </script>
 
 </body>
