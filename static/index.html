@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Télécommande PC</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+    margin: 0;
+    background: #111;
+    color: white;
+    font-family: sans-serif;
+    touch-action: none;
+}
+
+.container {
+    display: grid;
+    grid-template-rows: 15% 25% 25% 35%;
+    height: 100vh;
+}
+
+/* ---------- TOP ---------- */
+.top {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+.btn {
+    background: #222;
+    border: none;
+    color: white;
+    font-size: 24px;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+/* ---------- MIDDLE ---------- */
+.middle {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    text-align: center;
+}
+
+.big {
+    font-size: 30px;
+    padding: 25px;
+}
+
+/* ---------- BOTTOM BUTTONS ---------- */
+.bottom-buttons {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+/* ---------- JOYSTICK ---------- */
+.joystick-zone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.joystick {
+    width: 180px;
+    height: 180px;
+    background: #222;
+    border-radius: 50%;
+    position: relative;
+}
+
+.stick {
+    width: 70px;
+    height: 70px;
+    background: #555;
+    border-radius: 50%;
+    position: absolute;
+    top: 55px;
+    left: 55px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- TOP -->
+    <div class="top">
+        <button class="btn" onclick="send('/volume/down')">🔉−</button>
+        <button class="btn" onclick="send('/volume/up')">🔊+</button>
+    </div>
+
+    <!-- MIDDLE -->
+    <div class="middle">
+        <button class="btn big" onclick="send('/media/backward')">⏪</button>
+        <button class="btn big" onclick="send('/media/playpause')">⏯️</button>
+        <button class="btn big" onclick="send('/media/forward')">⏩</button>
+    </div>
+
+    <!-- BOTTOM BUTTONS -->
+    <div class="bottom-buttons">
+        <button class="btn" onclick="send('/media/prev')">⏮️</button>
+        <button class="btn" onclick="send('/media/next')">⏭️</button>
+    </div>
+
+    <!-- JOYSTICK -->
+    <div class="joystick-zone">
+        <div class="joystick" id="joystick">
+            <div class="stick" id="stick"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const stick = document.getElementById("stick");
+const joystick = document.getElementById("joystick");
+
+let active = false;
+let centerX, centerY;
+
+function send(url) {
+    fetch(url);
+}
+
+joystick.addEventListener("touchstart", e => {
+    active = true;
+    const rect = joystick.getBoundingClientRect();
+    centerX = rect.left + rect.width / 2;
+    centerY = rect.top + rect.height / 2;
+});
+
+joystick.addEventListener("touchmove", e => {
+    if (!active) return;
+    const touch = e.touches[0];
+
+    let dx = touch.clientX - centerX;
+    let dy = touch.clientY - centerY;
+
+    const max = 50;
+    dx = Math.max(-max, Math.min(max, dx));
+    dy = Math.max(-max, Math.min(max, dy));
+
+    stick.style.transform = `translate(${dx}px, ${dy}px)`;
+
+    fetch("/mouse/move", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            dx: dx / 3,
+            dy: dy / 3
+        })
+    });
+});
+
+joystick.addEventListener("touchend", () => {
+    active = false;
+    stick.style.transform = "translate(0,0)";
+});
+
+joystick.addEventListener("click", () => {
+    fetch("/mouse/click");
+});
+</script>
+
+</body>
+</html>
