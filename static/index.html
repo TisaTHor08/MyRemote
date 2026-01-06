@@ -210,6 +210,8 @@ function send(url) {
 const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
 let active = false, cx, cy;
+let lastSend = 0; // timestamp dernier envoi
+const throttle = 50; // ms entre chaque envoi
 
 joystick.addEventListener("touchstart", e => {
     active = true;
@@ -226,11 +228,15 @@ joystick.addEventListener("touchmove", e => {
 
     stick.style.transform = `translate(${dx}px, ${dy}px)`;
 
-    fetch("/mouse/move", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ dx: dx / 3, dy: dy / 3 })
-    });
+    const now = Date.now();
+    if (now - lastSend > throttle) {
+        lastSend = now;
+        fetch("/mouse/move", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ dx: dx / 3, dy: dy / 3 })
+        });
+    }
 });
 
 joystick.addEventListener("touchend", () => {
@@ -240,6 +246,7 @@ joystick.addEventListener("touchend", () => {
 
 joystick.addEventListener("click", () => fetch("/mouse/click"));
 </script>
+
 
 </body>
 </html>
